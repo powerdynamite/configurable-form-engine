@@ -49,8 +49,8 @@ instructions: |
   - mab_setdefault (choice): NoChange=734000000, WhenEmpty=734000001
   - mab_defaultvaluetype (choice): Text=734000000, Number=734000001, Boolean=734000002, Choice=734000003, Lookup=734000004, Today=734000005, CurrentUser=734000006
   - mab_defaultvalue (text) — the value (blank for Today/CurrentUser)
-  - mab_validationtype (choice): AlphaOnly=734000000, NumericOnly=734000001, Email=734000002, NoFutureDate=734000003, NoPastDate=734000004, MaxLength=734000005, Regex=734000006
-  - mab_validationparam (text) — digit count for MaxLength, pattern for Regex
+  - mab_validationtype (choice): AlphaOnly=734000000, NumericOnly=734000001, Email=734000002, NoFutureDate=734000003, NoPastDate=734000004, MaxLength=734000005, Regex=734000006, CompareToField=734000007
+  - mab_validationparam (text) — digit count for MaxLength, pattern for Regex, "operator:targetfieldname" for CompareToField (operator: gte/lte/gt/lt/eq/neq)
   - mab_valuelock (choice): NoChange=734000000, LockWhenSet=734000001, LockAfterSave=734000002, Unlocked=734000003
 
   ### mab_formruleconditions (collection: mab_formruleconditions)

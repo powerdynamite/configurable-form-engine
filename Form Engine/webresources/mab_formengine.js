@@ -33,7 +33,8 @@ MAB.FormEngine = (function () {
     var MATCH   = { AND: B, OR: B + 1 };
     var OP      = { EQ: B, NEQ: B + 1, CONTAINS: B + 2, NCONTAINS: B + 3, EMPTY: B + 4, NEMPTY: B + 5, IN: B + 6, GT: B + 7, LT: B + 8 };
     var VT      = { TEXT: B, NUMBER: B + 1, BOOLEAN: B + 2, CHOICE: B + 3, LOOKUP: B + 4 };
-    var VALID   = { ALPHA: B, NUMERIC: B + 1, EMAIL: B + 2, NO_FUTURE_DATE: B + 3, NO_PAST_DATE: B + 4, MAX_LENGTH: B + 5, REGEX: B + 6 };
+    var VALID   = { ALPHA: B, NUMERIC: B + 1, EMAIL: B + 2, NO_FUTURE_DATE: B + 3, NO_PAST_DATE: B + 4, MAX_LENGTH: B + 5, REGEX: B + 6, COMPARE_TO_FIELD: B + 7 };
+    var CMP_OP  = { gte: ">=", lte: "<=", gt: ">", lt: "<", eq: "=", neq: "!=" };
 
     var FORMTYPE_CREATE = 1, FORMTYPE_UPDATE = 2;
 
@@ -234,7 +235,7 @@ MAB.FormEngine = (function () {
         if (!ctrl) { return; }
         var val  = attr.getValue();
         var notifId = "CFE_VAL_" + rule.elementName;
-        var result  = runValidation(val, rule.validationType, rule.validationParam);
+        var result  = runValidation(fc, val, rule.validationType, rule.validationParam);
         if (result.invalid) {
             ctrl.setNotification(result.message, notifId);
             log("validation failed:", rule.elementName, result.message);
@@ -243,7 +244,7 @@ MAB.FormEngine = (function () {
         }
     }
 
-    function runValidation(val, type, param) {
+    function runValidation(fc, val, type, param) {
         // Empty values are not validated here — use the requirement action for that
         if (val === null || val === undefined || val === "") { return { invalid: false }; }
 
@@ -291,9 +292,65 @@ MAB.FormEngine = (function () {
                         : { invalid: true, message: "Value format is invalid." };
                 } catch (e) { return { invalid: false }; }
 
+            case VALID.COMPARE_TO_FIELD:
+                return runCompareToField(fc, val, param);
+
             default:
                 return { invalid: false };
         }
+    }
+
+    // param format: "operator:targetFieldLogicalName" e.g. "gte:mab_projectstart"
+    function runCompareToField(fc, val, param) {
+        var parts = String(param || "").split(":");
+        var op = (parts[0] || "").trim().toLowerCase();
+        var targetField = (parts[1] || "").trim().toLowerCase();
+        if (!CMP_OP[op] || !targetField) { return { invalid: false }; }
+
+        var targetAttr = fc.getAttribute(targetField);
+        if (!targetAttr) { return { invalid: false }; }
+        var targetVal = targetAttr.getValue();
+        if (isEmpty(targetVal)) { return { invalid: false }; }   // nothing to compare against yet
+
+        if (compareValues(val, targetVal, op)) { return { invalid: false }; }
+        return { invalid: true, message: "Value must be " + cmpWord(op) + " " + fieldLabel(fc, targetField) + "." };
+    }
+
+    function compareValues(a, b, op) {
+        var av, bv;
+        if (a instanceof Date && b instanceof Date) { av = a.getTime(); bv = b.getTime(); }
+        else if (!isNaN(Number(a)) && !isNaN(Number(b)) && a !== "" && b !== "") { av = Number(a); bv = Number(b); }
+        else { av = String(a); bv = String(b); }
+        switch (op) {
+            case "gte": return av >= bv;
+            case "lte": return av <= bv;
+            case "gt": return av > bv;
+            case "lt": return av < bv;
+            case "eq": return av === bv;
+            case "neq": return av !== bv;
+            default: return true;
+        }
+    }
+
+    function cmpWord(op) {
+        switch (op) {
+            case "gte": return "greater than or equal to";
+            case "lte": return "less than or equal to";
+            case "gt": return "greater than";
+            case "lt": return "less than";
+            case "eq": return "equal to";
+            case "neq": return "not equal to";
+            default: return op;
+        }
+    }
+
+    function fieldLabel(fc, name) {
+        try {
+            var ctrl = fc.getControl(name);
+            var l = ctrl && ctrl.getLabel && ctrl.getLabel();
+            if (l) { return l; }
+        } catch (e) { }
+        return name;
     }
 
     // Order (per §7): visibility -> default -> requirement -> editability -> value-lock
@@ -433,6 +490,7 @@ MAB.FormEngine = (function () {
 
         // 2. Wire the element field itself for validation rules (instant feedback)
         var validSeen = {};
+        var targetSeen = {};
         rules.forEach(function (r) {
             if (r.elementType === ELEM.FIELD && r.validationType !== null && r.validationType !== undefined) {
                 if (!validSeen[r.elementName]) {
@@ -441,6 +499,19 @@ MAB.FormEngine = (function () {
                         if (attr) { attr.addOnChange(function () { applyValidation(fc, rule); }); }
                     })(r);
                     validSeen[r.elementName] = true;
+                }
+
+                // CompareToField also needs to re-validate when the *target* field changes.
+                if (r.validationType === VALID.COMPARE_TO_FIELD && r.validationParam) {
+                    var targetField = (String(r.validationParam).split(":")[1] || "").trim().toLowerCase();
+                    var key = r.elementName + ">" + targetField;
+                    if (targetField && !targetSeen[key]) {
+                        (function (rule, targetField) {
+                            var tAttr = fc.getAttribute(targetField);
+                            if (tAttr) { tAttr.addOnChange(function () { applyValidation(fc, rule); }); }
+                        })(r, targetField);
+                        targetSeen[key] = true;
+                    }
                 }
             }
         });
