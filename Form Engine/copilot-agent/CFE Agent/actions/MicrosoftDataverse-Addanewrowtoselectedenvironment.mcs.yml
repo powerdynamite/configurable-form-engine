@@ -194,7 +194,7 @@ outputs:
 
   - propertyName: mab_validationparam
     name: Validation Param
-    description: "Parameter for validation: max digit count (Numeric Only), max character count (Max Length), or regex pattern (Regex). Leave blank for other types."
+    description: "Parameter for validation: max digit count (Numeric Only), max character count (Max Length), regex pattern (Regex), or \"operator:targetfieldname\" (Compare To Field, operator: gte/lte/gt/lt/eq/neq). Leave blank for other types."
 
   - propertyName: mab_validationtype
     name: Validation Type
@@ -396,7 +396,7 @@ action:
 
             mab_validationparam:
               displayName: Validation Param
-              description: "Parameter for validation: max digit count (Numeric Only), max character count (Max Length), or regex pattern (Regex). Leave blank for other types."
+              description: "Parameter for validation: max digit count (Numeric Only), max character count (Max Length), regex pattern (Regex), or \"operator:targetfieldname\" (Compare To Field, operator: gte/lte/gt/lt/eq/neq). Leave blank for other types."
               visibility: Advanced
               order: 23
               type: String
@@ -755,7 +755,7 @@ action:
 
       mab_validationparam:
         displayName: Validation Param
-        description: "Parameter for validation: max digit count (Numeric Only), max character count (Max Length), or regex pattern (Regex). Leave blank for other types."
+        description: "Parameter for validation: max digit count (Numeric Only), max character count (Max Length), regex pattern (Regex), or \"operator:targetfieldname\" (Compare To Field, operator: gte/lte/gt/lt/eq/neq). Leave blank for other types."
         visibility: Advanced
         order: 44
         type: String

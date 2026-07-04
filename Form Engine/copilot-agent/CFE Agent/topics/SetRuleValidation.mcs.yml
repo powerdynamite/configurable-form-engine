@@ -18,6 +18,8 @@ beginDialog:
       - restrict field to letters only
       - no future date
       - no past date
+      - compare to another field
+      - finish date must be after start date
 
   actions:
     - kind: Question
@@ -32,7 +34,7 @@ beginDialog:
     - kind: Question
       id: askValType
       variable: init:Topic.ValType
-      prompt: "What type of validation?\n• **alpha** — letters only\n• **numeric** — numbers only\n• **email** — valid email\n• **nofuturedate** — no future dates\n• **nopastdate** — no past dates\n• **maxlength** — max character count\n• **regex** — custom regex pattern"
+      prompt: "What type of validation?\n• **alpha** — letters only\n• **numeric** — numbers only\n• **email** — valid email\n• **nofuturedate** — no future dates\n• **nopastdate** — no past dates\n• **maxlength** — max character count\n• **regex** — custom regex pattern\n• **comparetofield** — compare against another field's value (e.g. finish date on/after start date)"
       entity: StringPrebuiltEntity
       alwaysPrompt: true
       interruptionPolicy:
@@ -41,7 +43,7 @@ beginDialog:
     - kind: Question
       id: askValParam
       variable: init:Topic.ValParam
-      prompt: "Enter the **parameter** for this validation (max character count for maxlength, regex pattern for regex, or type **none** if not applicable)."
+      prompt: "Enter the **parameter** for this validation (max character count for maxlength, regex pattern for regex, \"operator:targetfieldname\" e.g. gte:mab_projectstart for comparetofield, or type **none** if not applicable)."
       entity: StringPrebuiltEntity
       alwaysPrompt: true
       interruptionPolicy:

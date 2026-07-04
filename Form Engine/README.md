@@ -21,7 +21,7 @@ Register one web resource on any model-driven form's **OnLoad** event. From that
 | Editability | Editable / Read-Only |
 | Default value | Static text, number, boolean, choice, Today, Current User, Lookup |
 | Value lock | Lock when a value is entered / Lock after record is saved |
-| Validation | AlphaOnly, NumericOnly, Email, NoFutureDate, NoPastDate, MaxLength, Regex |
+| Validation | AlphaOnly, NumericOnly, Email, NoFutureDate, NoPastDate, MaxLength, Regex, CompareToField |
 | Conditions | Any of the above triggered only when a driver field equals / contains / is empty / etc. |
 | Role restrictions | Apply a rule only to users in a specific security role |
 
@@ -112,8 +112,18 @@ Go to **Form Rules → New** (or open the Managed Table → Form Rules subgrid)
 | `mab_defaultvaluetype` | Text / Number / Boolean / Choice / Lookup / Today / Current User |
 | `mab_defaultvalue` | The value. For Lookup: `"logicalname:guid:displayname"`. Today/Current User: leave blank. |
 | `mab_valuelock` | No Change / Lock When Set / Lock After Save / Unlocked |
-| `mab_validationtype` | AlphaOnly / NumericOnly / Email / NoFutureDate / NoPastDate / MaxLength / Regex |
-| `mab_validationparam` | Digit count for MaxLength, pattern string for Regex |
+| `mab_validationtype` | AlphaOnly / NumericOnly / Email / NoFutureDate / NoPastDate / MaxLength / Regex / CompareToField |
+| `mab_validationparam` | Digit count for MaxLength, pattern string for Regex, `"operator:targetfieldname"` for CompareToField (see below) |
+
+> **CompareToField** validates the rule's field against another field's *current value on the form* (rather than a static value), e.g. "Finish Date must be on or after Start Date." Set `mab_elementname` to the field being validated (e.g. `mab_projectfinish`), `mab_validationtype` to `CompareToField`, and `mab_validationparam` to `"operator:targetfieldname"` where operator is one of `gte` / `lte` / `gt` / `lt` / `eq` / `neq` and targetfieldname is the other field's logical name:
+>
+> | Rule field | Value |
+> |---|---|
+> | `mab_elementname` | `mab_projectfinish` |
+> | `mab_validationtype` | CompareToField |
+> | `mab_validationparam` | `gte:mab_projectstart` |
+>
+> This shows an inline error on `mab_projectfinish` whenever it's earlier than `mab_projectstart`, and re-validates live when either field changes. Both fields must be the same kind of value (date-vs-date or number-vs-number); if the target field is empty, validation is skipped until it has a value.
 
 ### Step 4 — Add conditions *(optional)*
 

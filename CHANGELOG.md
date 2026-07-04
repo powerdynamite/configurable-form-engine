@@ -4,6 +4,18 @@ All notable changes to the **Configurable Form Engine (CFE)** project — the fo
 
 ---
 
+## 2026-07-04 — Form engine: cross-field validation (`CompareToField`)
+
+### Added
+- **New `mab_validationtype` option: `CompareToField`** — validates a field's value against *another field's live value on the form* (e.g. "Finish Date must be on or after Start Date"), closing the gap where the only validation types were single-field checks (AlphaOnly, NumericOnly, Email, NoFutureDate, NoPastDate, MaxLength, Regex).
+  - `mab_validationparam` holds `"operator:targetfieldname"`, e.g. `"gte:mab_projectstart"`. Supported operators: `gte` / `lte` / `gt` / `lt` / `eq` / `neq`.
+  - Works for date and numeric fields (compared as dates/numbers) and falls back to string comparison otherwise. If the target field is empty, validation is skipped rather than failing.
+  - Re-validates live: OnChange is wired on both the validated field and the comparison target field.
+  - Added the `Compare To Field` (`734000007`) option to the `mab_validationtype` choice in both solution packages, and updated the bundled `mab_formengine` web resource to match `Form Engine/webresources/mab_formengine.js`.
+- Documented in `Form Engine/README.md` (validation table + dedicated CompareToField example) and in the CFE Configurator agent's option-set reference / prompts.
+
+---
+
 ## 2026-06-12 — CFE Configurator agent: lookup field fix (CREATE operations)
 
 ### Fixed
