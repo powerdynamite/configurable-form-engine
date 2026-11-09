@@ -1,6 +1,6 @@
 # Configurable Form Engine (CFE)
 
-**Author:** Abdul Basit · **Publisher prefix:** `mab`  
+**Author:** Abdul Basit ([KaizenAI](https://kaizenai.systems/)) · **Publisher prefix:** `mab`  
 **Platform:** Microsoft Dynamics 365 / Power Platform (Model-driven apps)
 
 > Stop writing JavaScript for every form. Configure field behaviour from data.
@@ -46,3 +46,11 @@ See **[Form Engine/README.md](Form%20Engine/README.md)** for:
 ---
 
 *Author: Abdul Basit — free to use and redistribute.*
+
+---
+
+## Built by KaizenAI
+
+This project is one of the [AI starter kits](https://kaizenai.systems/starter-kits/#configurable-form-engine) from **[KaizenAI](https://kaizenai.systems/)**, an AI-first Microsoft consultancy for AI agents, Copilot, Dynamics 365 and the Power Platform. Starter kits are foundations, not finished products: we adapt them to each organisation at a fixed price.
+
+Want it set up for your environment? [Talk to us](https://kaizenai.systems/contact/) or see our [fixed-price packages](https://kaizenai.systems/packages/).
